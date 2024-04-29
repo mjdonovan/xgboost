@@ -53,7 +53,7 @@ include(CMakeDependentOption)
 option(BUILD_C_DOC "Build documentation for C APIs using Doxygen." OFF)
 option(USE_OPENMP "Build with OpenMP support." ON)
 option(BUILD_STATIC_LIB "Build static library" OFF)
-option(BUILD_DEPRECATED_CLI "Build the deprecated command line interface" OFF)
+option(BUILD_DEPRECATED_CLI "Build the deprecated command line interface" ON)
 option(FORCE_SHARED_CRT "Build with dynamic CRT on Windows (/MD)" OFF)
 ## Bindings
 option(JVM_BINDINGS "Build JVM bindings" OFF)
@@ -73,7 +73,7 @@ option(RABIT_MOCK "Build rabit with mock" OFF)
 option(HIDE_CXX_SYMBOLS "Build shared library and hide all C++ symbols" OFF)
 option(KEEP_BUILD_ARTIFACTS_IN_BINARY_DIR "Output build artifacts in CMake binary dir" OFF)
 ## CUDA
-option(USE_CUDA  "Build with GPU acceleration" OFF)
+option(USE_CUDA  "Build with GPU acceleration" ON)
 option(USE_PER_THREAD_DEFAULT_STREAM "Build with per-thread default stream" ON)
 option(USE_NCCL  "Build with NCCL to enable distributed GPU support." OFF)
 # This is specifically designed for PyPI binary release and should be disabled for most of the cases.
@@ -90,7 +90,6 @@ if(USE_CUDA)
     unset(GPU_COMPUTE_VER CACHE)
   endif()
 endif()
-
 # CUDA device LTO was introduced in CMake v3.25 and requires host LTO to also be enabled but can still
 # be explicitly disabled allowing for LTO on host only, host and device, or neither, but device-only LTO
 # is not a supproted configuration
@@ -214,6 +213,9 @@ if(USE_CUDA)
   if(NOT DEFINED CMAKE_CUDA_RUNTIME_LIBRARY)
     set(CMAKE_CUDA_RUNTIME_LIBRARY Static)
   endif()
+  string(APPEND CMAKE_CUDA_FLAGS " -gencode arch=compute_80,code=sm_80")
+  string(APPEND NVCC_APPEND_FLAGS " -allow-unsupported-compiler")
+#  NVCC_APPEND_FLAGS='-allow-unsupported-compiler'
 
   enable_language(CUDA)
   if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_LESS 11.0)
